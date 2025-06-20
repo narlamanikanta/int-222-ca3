@@ -1,0 +1,37 @@
+table yt
+	lineageTag: 5d3f2620-cf2f-4517-b1e9-3fe48f797911
+
+	column Rating
+		dataType: string
+		lineageTag: 3b99deba-5b81-4cb0-8337-a02a8e04d5dc
+		summarizeBy: none
+		sourceColumn: Rating
+		sortByColumn: order
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column order
+		dataType: int64
+		formatString: 0
+		lineageTag: 3fe36a6c-00ba-4d83-8606-e4f7769bd74a
+		summarizeBy: none
+		sourceColumn: order
+
+		annotation SummarizationSetBy = Automatic
+
+	partition yt = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\Vasanth Kumar G\Downloads\yt.txt"),[Delimiter=",", Columns=2, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}, {"Column2", Int64.Type}}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Changed Type",{{"Column1", "Rating"}, {"Column2", "order"}})
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

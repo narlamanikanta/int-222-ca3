@@ -1,0 +1,157 @@
+table Data
+	lineageTag: 3f68eb88-6968-428d-915d-554e0b0751ff
+
+	measure HeadCount = COUNTROWS(Data)
+		formatString: 0
+		lineageTag: 8f4c2f1d-4f25-4faa-b9b3-843ee4d43cf7
+
+	measure 'min salary' = MIN(Data[Salary])
+		formatString: 0
+		lineageTag: a4c2c13d-dbfe-445d-8c3e-f1ed5f46d0c6
+
+	measure 'max salary' = MAX(Data[Salary])
+		formatString: 0
+		lineageTag: 38f1c903-2ab2-4cba-9882-16d97041f13e
+
+	measure 'average saary' = AVERAGE(Data[Salary])
+		lineageTag: f9086ead-4d59-4f81-b60e-f1f7ecc32053
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Gender
+		dataType: string
+		lineageTag: 3584fcd1-d96c-4956-90c3-f70a35a0be21
+		summarizeBy: none
+		sourceColumn: Gender
+
+		annotation SummarizationSetBy = Automatic
+
+	column Age
+		dataType: int64
+		formatString: 0
+		lineageTag: 895e316c-3144-467a-9e73-3b5c6a7e144e
+		summarizeBy: sum
+		sourceColumn: Age
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation __PBI_SemanticLinks = [{"LinkTarget":{"TableName":"Data","TableItemName":"Age (bins)","ObjectType":4},"LinkType":"UsedInGroup"}]
+
+	column Rating
+		dataType: string
+		lineageTag: 414f632d-6e1b-41b2-bc50-977dbb9b3e95
+		summarizeBy: none
+		sourceColumn: Rating
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Date Joined'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 26179ff7-9737-4736-b213-17a874896ce1
+		summarizeBy: none
+		sourceColumn: Date Joined
+
+		variation Variation
+			isDefault
+			relationship: 20307360-9e7a-4093-b7c0-37521cd88149
+			defaultHierarchy: LocalDateTable_be3ec95a-2e17-4d1a-890f-f7a3bfd982f7.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Department
+		dataType: string
+		lineageTag: b8075dd7-4603-4f8c-abd3-d1b2cb471356
+		summarizeBy: none
+		sourceColumn: Department
+
+		annotation SummarizationSetBy = Automatic
+
+	column Salary
+		dataType: int64
+		formatString: 0
+		lineageTag: f366c6c0-6d9a-4915-97a2-b040fdeb828f
+		summarizeBy: sum
+		sourceColumn: Salary
+
+		annotation SummarizationSetBy = Automatic
+
+	column Country
+		dataType: string
+		lineageTag: f5608663-7859-453d-83c4-dbe97f592a41
+		summarizeBy: none
+		sourceColumn: Country
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Age (bins)' =
+			IF(
+				ISBLANK('Data'[Age]),
+				BLANK(),
+				INT('Data'[Age] / 5) * 5
+			)
+		formatString: 0
+		lineageTag: 7549d9e5-7551-43f0-a607-b0e67a73f274
+		summarizeBy: none
+
+		extendedProperty GroupingMetadata =
+				{
+				  "version": 0,
+				  "groupedColumns": [
+				    {
+				      "Column": {
+				        "Expression": {
+				          "SourceRef": {
+				            "Entity": "Data"
+				          }
+				        },
+				        "Property": "Age"
+				      }
+				    }
+				  ],
+				  "binningMetadata": {
+				    "binSize": {
+				      "value": 5.0,
+				      "unit": 0
+				    }
+				  }
+				}
+
+		annotation GroupingDesignState = {"Version":0,"Sources":[{"Name":"d","Entity":"Data"}],"GroupedColumns":[{"Column":{"Expression":{"SourceRef":{"Source":"d"}},"Property":"Age"}}],"BinItem":{"Expression":{"Floor":{"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"d"}},"Property":"Age"}},"Size":5.0}}}}
+
+		annotation SummarizationSetBy = Automatic
+
+	column Name
+		dataType: string
+		lineageTag: 3916867c-53fb-4cfa-b395-b509b5a8b431
+		summarizeBy: none
+		sourceColumn: Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'First Characters'
+		dataType: string
+		lineageTag: 57b03ae6-bef7-4c42-8060-d554227d3d96
+		summarizeBy: none
+		sourceColumn: First Characters
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Data = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("C:\Users\Vasanth Kumar G\Downloads\hr-data.xlsx"), null, true),
+				    Data_Sheet = Source{[Item="Data",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(Data_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Name", type text}, {"Gender", type text}, {"Age", Int64.Type}, {"Rating", type text}, {"Date Joined", type date}, {"Department", type text}, {"Salary", Int64.Type}, {"Country", type text}}),
+				    #"Inserted First Characters" = Table.AddColumn(#"Changed Type", "First Characters", each Text.Start([Name], 1), type text)
+				in
+				    #"Inserted First Characters"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

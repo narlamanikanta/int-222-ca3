@@ -1,0 +1,9 @@
+relationship 20307360-9e7a-4093-b7c0-37521cd88149
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Data.'Date Joined'
+	toColumn: LocalDateTable_be3ec95a-2e17-4d1a-890f-f7a3bfd982f7.Date
+
+relationship d54a24a4-47f9-d31d-f9f9-54d0729b8b83
+	fromColumn: Data.Rating
+	toColumn: yt.Rating
+
